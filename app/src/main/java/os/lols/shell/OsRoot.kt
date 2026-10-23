@@ -191,7 +191,7 @@ private fun AppChrome(
             Text("\u2039", color = OsPalette.text, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.width(10.dp))
-        AppIconTile(glyph, color, 30.dp)
+        AppIconTile(glyph, color, size = 30.dp)
         Spacer(Modifier.width(10.dp))
         Text(title, color = OsPalette.text, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
     }
@@ -288,7 +288,7 @@ private fun BannerHost() {
                 Modifier.padding(horizontal = 14.dp, vertical = 10.dp).clickable { banner = null },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AppIconTile("\u25CE", OsPalette.accent2, 30.dp)
+                AppIconTile("\u25CE", OsPalette.accent2, size = 30.dp)
                 Spacer(Modifier.width(10.dp))
                 Column {
                     Text(n.title, color = OsPalette.text, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1)

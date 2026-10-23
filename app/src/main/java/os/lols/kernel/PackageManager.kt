@@ -23,7 +23,7 @@ data class AppInfo(
     val entry: String, // "lols" or "native:store" ...
 )
 
-/** An app available in the bundled repo (assets/repo/*.lols). */
+/** An app available in the bundled repo (assets/repo). */
 data class RepoEntry(
     val id: String,
     val name: String,

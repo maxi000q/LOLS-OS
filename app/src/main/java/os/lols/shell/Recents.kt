@@ -130,7 +130,7 @@ private fun RecentsCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            AppIconTile("\u25CE", color, 44.dp)
+            AppIconTile("\u25CE", color, size = 44.dp)
             Text(info.name, color = OsPalette.text, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1)
             Text("pid ${info.pid}", color = OsPalette.textDim, fontSize = 10.sp)
             Text(

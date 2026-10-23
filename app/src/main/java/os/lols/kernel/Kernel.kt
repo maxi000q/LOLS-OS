@@ -29,16 +29,16 @@ data class OsSettings(
  * The LOLS kernel: service registry + settings + logging + boot orchestration.
  * One instance per app process, owned by LolsApplication.
  */
-class Kernel private constructor(context: Context) {
+class Kernel private constructor(private val appContext: Context) {
 
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    val fs = LolsFS(context)
+    val fs = LolsFS(appContext)
     val mem = MemoryManager(this)
     val bus = MessageBus(this)
-    val power = PowerBridge(context, scope)
+    val power = PowerBridge(appContext, scope)
     val processes = ProcessManager(this)
-    val packages = PackageManager(this, context)
+    val packages = PackageManager(this, appContext)
 
     private val _settings = MutableStateFlow(OsSettings())
     val settings = _settings.asStateFlow()
@@ -81,7 +81,7 @@ class Kernel private constructor(context: Context) {
     fun boot() {
         _bootDone.value = false
         scope.launch {
-            BootSequence(this@Kernel, context).run()
+            BootSequence(this@Kernel, appContext).run()
             bootAtMs = System.currentTimeMillis()
             bootedOnce = true
             _bootDone.value = true

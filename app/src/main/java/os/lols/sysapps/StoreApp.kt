@@ -133,7 +133,7 @@ fun StoreApp() {
 private fun InstalledRow(app: AppInfo, onUninstall: () -> Unit) {
     GlassSurface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp)) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            AppIconTile(app.icon, parseHexColor(app.color, OsPalette.accent), 46.dp)
+            AppIconTile(app.icon, parseHexColor(app.color, OsPalette.accent), size = 46.dp)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(app.name, color = OsPalette.text, fontSize = 15.sp, fontWeight = FontWeight.Medium)
@@ -156,7 +156,7 @@ private fun InstalledRow(app: AppInfo, onUninstall: () -> Unit) {
 private fun RepoRow(entry: RepoEntry, installed: Boolean, busy: Boolean, onInstall: () -> Unit) {
     GlassSurface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp)) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            AppIconTile(entry.icon, parseHexColor(entry.color, OsPalette.accent), 46.dp)
+            AppIconTile(entry.icon, parseHexColor(entry.color, OsPalette.accent), size = 46.dp)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(entry.name, color = OsPalette.text, fontSize = 15.sp, fontWeight = FontWeight.Medium)

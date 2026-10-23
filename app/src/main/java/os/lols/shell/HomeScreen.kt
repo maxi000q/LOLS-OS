@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -259,7 +258,7 @@ private fun ContextMenu(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                AppIconTile(app.icon, parseHexColor(app.color, OsPalette.accent), 54.dp)
+                AppIconTile(app.icon, parseHexColor(app.color, OsPalette.accent), size = 54.dp)
                 Text(app.name, color = OsPalette.text, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                 Text("v${app.version} \u00B7 ${app.id}", color = OsPalette.textDim, fontSize = 11.sp)
                 if (app.perms.isNotEmpty()) {

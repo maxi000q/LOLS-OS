@@ -12,7 +12,7 @@ class Interpreter(private val rt: Runtime) {
     object BreakEx : Exception()
     object ContinueEx : Exception()
 
-    private fun step(line: Int) = rt.step(line)
+    private suspend fun step(line: Int) = rt.step(line)
     private fun alloc(bytes: Long) = rt.alloc(bytes)
 
     // ---------------- statements ----------------

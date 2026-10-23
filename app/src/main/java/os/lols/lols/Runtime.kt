@@ -135,7 +135,7 @@ class Runtime(
             try {
                 val watchdogMs = kernel.settings.value.watchdogS * 1000L
                 val done = withTimeoutOrNull(watchdogMs) {
-                    interp.call(callable, if (arg == null) emptyList() else listOf(arg))
+                    interp.call(callable, if (arg == null) emptyList() else listOf(arg), 0)
                     true
                 }
                 if (done == null) {

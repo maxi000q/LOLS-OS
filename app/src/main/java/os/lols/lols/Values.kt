@@ -53,16 +53,16 @@ fun formatNum(v: Double): String {
 
 /** Structural equality (deep for lists/maps). */
 fun lvEquals(a: LV, b: LV): Boolean {
-    if (a is LNum && b is LNum) return a.v == b.v
-    if (a is LStr && b is LStr) return a.s == b.s
-    if (a is LBool && b is LBool) return a.b == b.b
-    if (a is LNull && b is LNull) return true
-    if (a is LList && b is LList) {
+    if (a is LV.LNum && b is LV.LNum) return a.v == b.v
+    if (a is LV.LStr && b is LV.LStr) return a.s == b.s
+    if (a is LV.LBool && b is LV.LBool) return a.b == b.b
+    if (a is LV.LNull && b is LV.LNull) return true
+    if (a is LV.LList && b is LV.LList) {
         if (a.items.size != b.items.size) return false
         for (i in a.items.indices) if (!lvEquals(a.items[i], b.items[i])) return false
         return true
     }
-    if (a is LMap && b is LMap) {
+    if (a is LV.LMap && b is LV.LMap) {
         if (a.entries.size != b.entries.size) return false
         for ((k, v) in a.entries) {
             val o = b.entries[k] ?: return false
@@ -78,7 +78,7 @@ fun lvSize(v: LV): Long = when (v) {
     is LV.LNull, is LV.LBool -> 8
     is LV.LNum -> 16
     is LV.LStr -> 16L + 2L * v.s.length
-    is LV.LList -> 40L + 8L * v.items.size + v.items.sumOf { 8 }
+    is LV.LList -> 40L + 8L * v.items.size + v.items.sumOf { 8L }
     is LV.LMap -> 48L + 32L * v.entries.size
     is LV.LFunc, is LV.LNative, is LV.LClosure -> 32
 }

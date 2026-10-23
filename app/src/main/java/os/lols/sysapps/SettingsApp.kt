@@ -480,20 +480,20 @@ private fun SecuritySection(back: () -> Unit, lockNow: () -> Unit) {
                                     1 -> {
                                         if (kernel.checkPin(oldPin)) {
                                             stage = 2; message = ""
-                                        } else message = t("Wrong PIN", "الرمز الحالي غير صحيح")
+                                        } else message = kernel.t("Wrong PIN", "الرمز الحالي غير صحيح")
                                     }
                                     2 -> {
                                         if (newPin.length == 4) { stage = 3; message = "" }
-                                        else message = t("PIN must be 4 digits", "يجب أن يكون الرمز 4 أرقام")
+                                        else message = kernel.t("PIN must be 4 digits", "يجب أن يكون الرمز 4 أرقام")
                                     }
                                     else -> {
                                         if (confirmPin == newPin) {
                                             kernel.setPin(newPin)
                                             stage = 0; oldPin = ""; newPin = ""; confirmPin = ""
-                                            message = t("PIN changed", "تم تغيير الرمز")
+                                            message = kernel.t("PIN changed", "تم تغيير الرمز")
                                         } else {
                                             stage = 2
-                                            message = t("PINs did not match", "الرمزان غير متطابقين")
+                                            message = kernel.t("PINs did not match", "الرمزان غير متطابقين")
                                         }
                                     }
                                 }

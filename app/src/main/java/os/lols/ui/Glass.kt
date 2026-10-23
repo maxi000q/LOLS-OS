@@ -178,7 +178,7 @@ fun OsSliderRow(
     value: Float,
     range: ClosedFloatingPointRange<Float>,
     steps: Int = 0,
-    format: (Float) -> String,
+    format: (Float) -> String = { "%.0f".format(it) },
     onChange: (Float) -> Unit,
 ) {
     GlassSurface(Modifier.fillMaxWidth()) {
@@ -208,8 +208,8 @@ fun OsSliderRow(
 fun Segmented(
     options: List<String>,
     selected: Int,
-    onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onSelect: (Int) -> Unit,
 ) {
     GlassSurface(modifier, shape = RoundedCornerShape(16.dp)) {
         Row(Modifier.padding(4.dp)) {
