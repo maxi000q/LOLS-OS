@@ -1,0 +1,7 @@
+app "Files" {
+  id "com.lols.files"
+  version "1.0.0"
+  icon "▦"
+  color "#60A5FA"
+  permission "fs.full"
+}

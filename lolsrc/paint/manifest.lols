@@ -1,0 +1,6 @@
+app "Paint" {
+  id "com.lols.paint"
+  version "1.0.0"
+  icon "✎"
+  color "#F472B6"
+}

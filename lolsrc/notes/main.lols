@@ -1,0 +1,129 @@
+// LOLS Notes - persists to the real LolsFS at /data/com.lols.notes
+app "Notes" {
+  id "com.lols.notes"
+  version "1.0.0"
+  icon "≡"
+  color "#A78BFA"
+
+  state {
+    notes = []
+    view = "list"
+    idx = 0
+    title = ""
+    body = ""
+  }
+
+  on start {
+    raw = fs.read(dataDir() + "/notes.txt")
+    if raw != "" {
+      rows = split(raw, "\n")
+      i = 0
+      while i < len(rows) {
+        if rows[i] != "" {
+          parts = split(rows[i], "\u0001")
+          bodyText = ""
+          if len(parts) > 1 {
+            bodyText = replace(parts[1], "\u0002", "\n")
+          }
+          push(notes, [title: parts[0], body: bodyText])
+        }
+        i = i + 1
+      }
+    }
+  }
+
+  func save() {
+    if idx < len(notes) {
+      notes[idx]["title"] = title
+      notes[idx]["body"] = body
+    }
+    out = ""
+    i = 0
+    while i < len(notes) {
+      n = notes[i]
+      cleanTitle = replace(n["title"], "\n", " ")
+      cleanBody = replace(n["body"], "\n", "\u0002")
+      out = out + cleanTitle + "\u0001" + cleanBody
+      if i < len(notes) - 1 {
+        out = out + "\n"
+      }
+      i = i + 1
+    }
+    fs.write(dataDir() + "/notes.txt", out)
+    notify(t("Notes", "الملاحظات"), t("saved", "تم الحفظ"))
+  }
+
+  func open(i) {
+    idx = i
+    title = notes[i]["title"]
+    body = notes[i]["body"]
+    view = "edit"
+  }
+
+  func newNote() {
+    push(notes, [title: "", body: ""])
+    open(len(notes) - 1)
+  }
+
+  func del() {
+    pop(notes, idx)
+    save()
+    view = "list"
+  }
+
+  func close() {
+    view = "list"
+  }
+
+  ui {
+    Screen {
+      Column {
+        padding = 16
+        spacing = 12
+        if view == "list" {
+          Text { value = t("Notes", "الملاحظات"); style = "title" }
+          Button { label = t("New note", "ملاحظة جديدة"); onClick = { newNote() }; style = "primary" }
+          Scroll {
+            Column {
+              spacing = 8
+              if len(notes) == 0 {
+                Text { value = t("No notes yet - create one!", "لا توجد ملاحظات بعد - أنشئ واحدة!"); style = "caption" }
+              }
+              i = 0
+              while i < len(notes) {
+                ttl = notes[i]["title"]
+                if ttl == "" {
+                  ttl = t("Untitled", "بدون عنوان")
+                }
+                Button {
+                  label = ttl
+                  onClick = { open(i) }
+                }
+                i = i + 1
+              }
+            }
+          }
+        } else {
+          Text { value = t("Edit note", "تعديل الملاحظة"); style = "title" }
+          Field {
+            value = title
+            placeholder = t("Title", "العنوان")
+            onChange = { x | title = x }
+          }
+          Field {
+            value = body
+            placeholder = t("Write something...", "اكتب شيئاً...")
+            onChange = { x | body = x }
+            multiline = true
+          }
+          Row {
+            spacing = 8
+            Button { label = t("Save", "حفظ"); onClick = { save() }; style = "primary" }
+            Button { label = t("Delete", "حذف"); onClick = { del() }; style = "danger" }
+            Button { label = t("Close", "إغلاق"); onClick = { close() } }
+          }
+        }
+      }
+    }
+  }
+}

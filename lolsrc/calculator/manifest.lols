@@ -1,0 +1,6 @@
+app "Calculator" {
+  id "com.lols.calculator"
+  version "1.0.0"
+  icon "±"
+  color "#6EE7D8"
+}

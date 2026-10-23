@@ -1,0 +1,141 @@
+// LOLS Calculator - runs on the real LOLS runtime
+app "Calculator" {
+  id "com.lols.calculator"
+  version "1.0.0"
+  icon "±"
+  color "#6EE7D8"
+
+  state {
+    display = "0"
+    acc = 0
+    op = ""
+    fresh = true
+  }
+
+  func clear() {
+    display = "0"
+    acc = 0
+    op = ""
+    fresh = true
+  }
+
+  func digit(d) {
+    if fresh {
+      display = d
+      fresh = false
+    } else {
+      if len(display) < 12 {
+        display = display + d
+      }
+    }
+  }
+
+  func dot() {
+    if fresh {
+      display = "0."
+      fresh = false
+    } else {
+      if find(display, ".") == -1 {
+        display = display + "."
+      }
+    }
+  }
+
+  func negate() {
+    if display != "0" {
+      if sub(display, 0, 1) == "-" {
+        display = sub(display, 1, len(display) - 1)
+      } else {
+        display = "-" + display
+      }
+    }
+  }
+
+  func percent() {
+    display = str(num(display) / 100)
+  }
+
+  func back() {
+    if fresh {
+      return
+    }
+    if len(display) > 1 {
+      display = sub(display, 0, len(display) - 1)
+    } else {
+      display = "0"
+      fresh = true
+    }
+  }
+
+  func setOp(o) {
+    if op != "" {
+      equals()
+    }
+    acc = num(display)
+    op = o
+    fresh = true
+  }
+
+  func equals() {
+    if op == "" {
+      return
+    }
+    b = num(display)
+    if op == "+" {
+      acc = acc + b
+    }
+    if op == "-" {
+      acc = acc - b
+    }
+    if op == "*" {
+      acc = acc * b
+    }
+    if op == "/" {
+      if b == 0 {
+        display = "Error"
+        op = ""
+        fresh = true
+        return
+      }
+      acc = acc / b
+    }
+    display = str(acc)
+    op = ""
+    fresh = true
+  }
+
+  ui {
+    Screen {
+      Column {
+        padding = 16
+        spacing = 14
+        Text { value = t("Calculator", "الآلة الحاسبة"); style = "caption"; color = "#8A93A6" }
+        Text { value = display; style = "display"; color = "#F2F5FF"; align = "end" }
+        Grid {
+          columns = 4
+          spacing = 10
+          Button { label = "C"; onClick = { clear() } }
+          Button { label = "±"; onClick = { negate() } }
+          Button { label = "%"; onClick = { percent() } }
+          Button { label = "÷"; onClick = { setOp("/") }; style = "primary" }
+          Button { label = "7"; onClick = { digit("7") } }
+          Button { label = "8"; onClick = { digit("8") } }
+          Button { label = "9"; onClick = { digit("9") } }
+          Button { label = "×"; onClick = { setOp("*") }; style = "primary" }
+          Button { label = "4"; onClick = { digit("4") } }
+          Button { label = "5"; onClick = { digit("5") } }
+          Button { label = "6"; onClick = { digit("6") } }
+          Button { label = "−"; onClick = { setOp("-") }; style = "primary" }
+          Button { label = "1"; onClick = { digit("1") } }
+          Button { label = "2"; onClick = { digit("2") } }
+          Button { label = "3"; onClick = { digit("3") } }
+          Button { label = "+"; onClick = { setOp("+") }; style = "primary" }
+          Button { label = "0"; onClick = { digit("0") } }
+          Button { label = "."; onClick = { dot() } }
+          Button { label = "⌫"; onClick = { back() } }
+          Button { label = "="; onClick = { equals() }; style = "primary" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- LOLS OS launcher icon: original mark - dark glass tile, mint "L", violet spark -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#0B1026"
+        android:pathData="M8,0 L100,0 A8,8 0 0 1 108,8 L108,100 A8,8 0 0 1 100,108 L8,108 A8,8 0 0 1 0,100 L0,8 A8,8 0 0 1 8,0 Z" />
+    <path
+        android:fillColor="#1E1B4B"
+        android:pathData="M8,0 L100,0 A8,8 0 0 1 108,8 L108,54 L0,54 L0,8 A8,8 0 0 1 8,0 Z" />
+    <path
+        android:fillColor="#6EE7D8"
+        android:pathData="M30,24 L46,24 L46,70 L78,70 L78,86 L30,86 Z" />
+    <path
+        android:fillColor="#A78BFA"
+        android:pathData="M70,20 L88,20 L88,38 L70,38 Z" />
+    <path
+        android:fillColor="#6EE7D8"
+        android:fillAlpha="0.35"
+        android:pathData="M56,24 L64,24 L64,86 L56,86 Z" />
+</vector>

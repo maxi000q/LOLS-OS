@@ -1,0 +1,83 @@
+name: Build LOLS OS APK
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          # The wrapper jar is sourced verbatim from the official
+          # gradle/gradle repo (tag v8.7.0), which is not in the
+          # wrapper-validation checksum list, so skip that check.
+          validate-wrappers: false
+
+      - name: Build APKs (debug + release)
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug assembleRelease --no-daemon --stacktrace
+
+      - name: Collect APKs
+        run: |
+          mkdir -p apks
+          cp app/build/outputs/apk/debug/app-debug.apk apks/LOLS-OS-v1.0.0-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk apks/LOLS-OS-v1.0.0-release.apk
+          ls -la apks/
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LOLS-OS-debug-APK
+          path: apks/LOLS-OS-v1.0.0-debug.apk
+          retention-days: 30
+
+      - name: Upload release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LOLS-OS-release-APK
+          path: apks/LOLS-OS-v1.0.0-release.apk
+          retention-days: 30
+
+      - name: Publish GitHub Release with APKs
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.0.0"
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" apks/*.apk --clobber -R "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" apks/*.apk \
+              --title "LOLS OS v1.0.0" \
+              --notes "LOLS OS v1.0.0 — a real, original OS running inside a single Android app (MIT license).
+
+          **Download** \`LOLS-OS-v1.0.0-release.apk\` (or the debug build), then install it on your phone (enable \u201cInstall unknown apps\u201d when asked).
+
+          - Real .LOLS interpreter (lexer, parser, VM) written from scratch
+          - Real virtual filesystem, processes, OOM killer and watchdog
+          - Real hardware control: RAM pool, scheduler quantum, watchdog
+          - 5 bundled .LOLS apps + Store + Terminal + Settings
+
+          ${{ github.event.head_commit.message }}" \
+              --latest -R "$GITHUB_REPOSITORY"
+          fi

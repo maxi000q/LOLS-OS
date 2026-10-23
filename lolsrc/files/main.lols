@@ -1,0 +1,123 @@
+// LOLS Files - browses the REAL LolsFS virtual filesystem
+app "Files" {
+  id "com.lols.files"
+  version "1.0.0"
+  icon "▦"
+  color "#60A5FA"
+  permission "fs.full"
+
+  state {
+    path = "/"
+    items = []
+    fileOpen = ""
+    content = ""
+  }
+
+  on start {
+    refresh()
+  }
+
+  func refresh() {
+    items = fs.list(path)
+    fileOpen = ""
+    content = ""
+  }
+
+  func openItem(i) {
+    it = items[i]
+    if it["dir"] {
+      if it["name"] == ".." {
+        if path != "/" {
+          parts = split(path, "/")
+          path = ""
+          i2 = 0
+          while i2 < len(parts) - 1 {
+            if parts[i2] != "" {
+              path = path + "/" + parts[i2]
+            }
+            i2 = i2 + 1
+          }
+          if path == "" {
+            path = "/"
+          }
+        }
+      } else {
+        if path == "/" {
+          path = "/" + it["name"]
+        } else {
+          path = path + "/" + it["name"]
+        }
+      }
+      refresh()
+    } else {
+      fileOpen = it["name"]
+      content = sub(fs.read(path + "/" + it["name"]), 0, 4000)
+    }
+  }
+
+  func deleteOpen() {
+    if fileOpen == "" {
+      return
+    }
+    fs.delete(path + "/" + fileOpen)
+    refresh()
+  }
+
+  func fmtSize(n) {
+    if n < 1024 {
+      return str(n) + " B"
+    }
+    if n < 1048576 {
+      return str(round(n / 1024)) + " KB"
+    }
+    return str(round(n / 1048576)) + " MB"
+  }
+
+  ui {
+    Screen {
+      Column {
+        padding = 16
+        spacing = 12
+        if fileOpen == "" {
+          Text { value = "LolsFS"; style = "caption"; color = "#60A5FA" }
+          Text { value = path; style = "title" }
+          Scroll {
+            Column {
+              spacing = 6
+              i = 0
+              while i < len(items) {
+                it = items[i]
+                nm = it["name"]
+                if it["dir"] {
+                  nm = "▸ " + nm
+                } else {
+                  nm = "▢ " + nm + "  ·  " + fmtSize(it["size"])
+                }
+                Button {
+                  label = nm
+                  onClick = { openItem(i) }
+                }
+                i = i + 1
+              }
+              if len(items) == 0 {
+                Text { value = t("(empty directory)", "(مجلد فارغ)"); style = "caption" }
+              }
+            }
+          }
+        } else {
+          Text { value = fileOpen; style = "title" }
+          Scroll {
+            Column {
+              Text { value = content; style = "mono" }
+            }
+          }
+          Row {
+            spacing = 8
+            Button { label = t("Close", "إغلاق"); onClick = { refresh() } }
+            Button { label = t("Delete", "حذف"); onClick = { deleteOpen() }; style = "danger" }
+          }
+        }
+      }
+    }
+  }
+}

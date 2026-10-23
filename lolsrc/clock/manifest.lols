@@ -1,0 +1,6 @@
+app "Clock" {
+  id "com.lols.clock"
+  version "1.0.0"
+  icon "◷"
+  color "#FBBF24"
+}

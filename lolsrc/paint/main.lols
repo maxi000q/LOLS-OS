@@ -1,0 +1,128 @@
+// LOLS Paint - draws on a real canvas with touch events, saves to /home
+app "Paint" {
+  id "com.lols.paint"
+  version "1.0.0"
+  icon "✎"
+  color "#F472B6"
+
+  state {
+    strokes = []
+    curColor = "#F472B6"
+    curWidth = 6
+    saved = ""
+  }
+
+  func point(p) {
+    if p["phase"] == "down" {
+      push(strokes, [color: curColor, width: curWidth, points: []])
+    }
+    if len(strokes) == 0 {
+      return
+    }
+    last = strokes[len(strokes) - 1]
+    if p["phase"] != "up" {
+      push(last["points"], [x: p["x"], y: p["y"]])
+    }
+  }
+
+  func clear() {
+    strokes = []
+    saved = ""
+  }
+
+  func pick(c) {
+    curColor = c
+  }
+
+  func setWidth(w) {
+    curWidth = w
+  }
+
+  func saveP() {
+    out = ""
+    i = 0
+    while i < len(strokes) {
+      st = strokes[i]
+      pts = ""
+      j = 0
+      while j < len(st["points"]) {
+        pt = st["points"][j]
+        pts = pts + str(pt["x"]) + "," + str(pt["y"])
+        if j < len(st["points"]) - 1 {
+          pts = pts + ";"
+        }
+        j = j + 1
+      }
+      out = out + pts + "|" + st["color"] + "|" + str(st["width"])
+      if i < len(strokes) - 1 {
+        out = out + "\n"
+      }
+      i = i + 1
+    }
+    fs.write("/home/painting.txt", out)
+    saved = t("saved to /home/painting.txt", "تم الحفظ في /home/painting.txt")
+  }
+
+  func loadP() {
+    raw = fs.read("/home/painting.txt")
+    if raw == "" {
+      saved = t("nothing saved yet", "لا يوجد رسم محفوظ")
+      return
+    }
+    strokes = []
+    rows = split(raw, "\n")
+    i = 0
+    while i < len(rows) {
+      if rows[i] != "" {
+        parts = split(rows[i], "|")
+        push(strokes, [color: parts[1], width: num(parts[2]), points: []])
+        pts = split(parts[0], ";")
+        j = 0
+        while j < len(pts) {
+          xy = split(pts[j], ",")
+          push(strokes[i]["points"], [x: num(xy[0]), y: num(xy[1])])
+          j = j + 1
+        }
+      }
+      i = i + 1
+    }
+    saved = t("loaded", "تم التحميل")
+  }
+
+  ui {
+    Screen {
+      Column {
+        padding = 12
+        spacing = 10
+        Row {
+          spacing = 8
+          Button { label = t("Clear", "مسح"); onClick = { clear() }; style = "danger" }
+          Button { label = t("Save", "حفظ"); onClick = { saveP() } }
+          Button { label = t("Open", "فتح"); onClick = { loadP() } }
+        }
+        Row {
+          spacing = 8
+          Button { label = "●"; onClick = { pick("#F472B6") }; style = "primary"; color = "#F472B6" }
+          Button { label = "●"; onClick = { pick("#60A5FA") }; style = "primary"; color = "#60A5FA" }
+          Button { label = "●"; onClick = { pick("#4ADE80") }; style = "primary"; color = "#4ADE80" }
+          Button { label = "●"; onClick = { pick("#FBBF24") }; style = "primary"; color = "#FBBF24" }
+          Button { label = "●"; onClick = { pick("#F87171") }; style = "primary"; color = "#F87171" }
+          Button { label = "●"; onClick = { pick("#F2F5FF") }; style = "primary"; color = "#F2F5FF" }
+        }
+        Row {
+          spacing = 8
+          Button { label = t("Thin", "رفيع"); onClick = { setWidth(4) } }
+          Button { label = t("Med", "متوسط"); onClick = { setWidth(9) } }
+          Button { label = t("Thick", "عريض"); onClick = { setWidth(16) } }
+        }
+        if saved != "" {
+          Text { value = saved; style = "caption"; color = "#4ADE80" }
+        }
+        Canvas {
+          onPoint = { p | point(p) }
+          strokes = strokes
+        }
+      }
+    }
+  }
+}

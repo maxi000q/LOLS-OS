@@ -1,0 +1,6 @@
+app "Notes" {
+  id "com.lols.notes"
+  version "1.0.0"
+  icon "≡"
+  color "#A78BFA"
+}

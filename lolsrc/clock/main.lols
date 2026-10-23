@@ -1,0 +1,186 @@
+// LOLS Clock - world clocks + stopwatch, ticking on a real timer event
+app "Clock" {
+  id "com.lols.clock"
+  version "1.0.0"
+  icon "◷"
+  color "#FBBF24"
+
+  state {
+    now = [h: 0, m: 0, s: 0]
+    date = [y: 2026, mo: 1, d: 1, dow: 0]
+    cities = []
+    view = "clocks"
+    swRunning = false
+    swMs = 0
+    lastTick = 0
+    newCity = ""
+    newOff = ""
+  }
+
+  on start {
+    raw = fs.read(dataDir() + "/cities.txt")
+    if raw == "" {
+      push(cities, [name: "Cairo", off: 2])
+      push(cities, [name: "London", off: 0])
+      push(cities, [name: "New York", off: -5])
+      push(cities, [name: "Tokyo", off: 9])
+    } else {
+      rows = split(raw, "\n")
+      i = 0
+      while i < len(rows) {
+        if rows[i] != "" {
+          p = split(rows[i], ",")
+          push(cities, [name: p[0], off: num(p[1])])
+        }
+        i = i + 1
+      }
+    }
+    refresh()
+  }
+
+  on tick(250) {
+    refresh()
+    if swRunning {
+      if lastTick == 0 {
+        lastTick = now()
+      }
+      swMs = swMs + (now() - lastTick)
+      lastTick = now()
+    } else {
+      lastTick = 0
+    }
+  }
+
+  func refresh() {
+    now = timeParts()
+    date = dateParts()
+  }
+
+  func pad2(n) {
+    s = str(floor(n))
+    if n < 10 {
+      s = "0" + s
+    }
+    return s
+  }
+
+  func dayName() {
+    names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    ar = ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]
+    i = date["dow"]
+    if lang() == "ar" {
+      return ar[i]
+    }
+    return names[i]
+  }
+
+  func cityTime(off) {
+    h = now["h"] + off
+    h = h - floor(h / 24) * 24
+    return pad2(h) + ":" + pad2(now["m"])
+  }
+
+  func toggleSw() {
+    swRunning = !swRunning
+    if swRunning {
+      lastTick = now()
+    }
+  }
+
+  func resetSw() {
+    swRunning = false
+    swMs = 0
+  }
+
+  func swText() {
+    total = floor(swMs / 1000)
+    m = floor(total / 60)
+    s = total - m * 60
+    cs = floor((swMs - total * 1000) / 10)
+    return pad2(m) + ":" + pad2(s) + "." + pad2(cs)
+  }
+
+  func rmCity(i) {
+    pop(cities, i)
+    saveCities()
+  }
+
+  func addCity() {
+    nm = trim(newCity)
+    if nm == "" {
+      return
+    }
+    push(cities, [name: nm, off: num(newOff)])
+    newCity = ""
+    newOff = ""
+    saveCities()
+  }
+
+  func saveCities() {
+    out = ""
+    i = 0
+    while i < len(cities) {
+      out = out + cities[i]["name"] + "," + str(cities[i]["off"])
+      if i < len(cities) - 1 {
+        out = out + "\n"
+      }
+      i = i + 1
+    }
+    fs.write(dataDir() + "/cities.txt", out)
+  }
+
+  ui {
+    Screen {
+      Column {
+        padding = 16
+        spacing = 12
+        if view == "clocks" {
+          Text { value = pad2(now["h"]) + ":" + pad2(now["m"]) + ":" + pad2(now["s"]); style = "display"; color = "#FBBF24" }
+          Text { value = dayName() + " " + date["d"] + "/" + date["mo"] + "/" + date["y"]; style = "caption" }
+          Divider { }
+          Scroll {
+            Column {
+              spacing = 8
+              i = 0
+              while i < len(cities) {
+                nm = cities[i]["name"]
+                tm = cityTime(cities[i]["off"])
+                Button {
+                  label = nm + "   " + tm + "   UTC" + str(cities[i]["off"])
+                  onClick = { rmCity(i) }
+                }
+                i = i + 1
+              }
+              Text { value = t("tap a city to remove it", "اضغط مدينة لحذفها"); style = "caption" }
+              Field {
+                value = newCity
+                placeholder = t("City name", "اسم المدينة")
+                onChange = { x | newCity = x }
+              }
+              Field {
+                value = newOff
+                placeholder = t("UTC offset, e.g. 3 or -5", "فرق التوقيت، مثل 3 أو -5")
+                onChange = { x | newOff = x }
+              }
+              Button { label = t("Add city", "إضافة مدينة"); onClick = { addCity() }; style = "primary" }
+            }
+          }
+          Button { label = t("Stopwatch", "ساعة إيقاف"); onClick = { view = "sw" } }
+        } else {
+          Text { value = swText(); style = "display"; color = "#FBBF24" }
+          Text { value = t("stopwatch keeps running in background", "ساعة الإيقاف تستمر في الخلفية"); style = "caption" }
+          Row {
+            spacing = 8
+            if swRunning {
+              Button { label = t("Stop", "إيقاف"); onClick = { toggleSw() }; style = "danger" }
+            } else {
+              Button { label = t("Start", "تشغيل"); onClick = { toggleSw() }; style = "primary" }
+            }
+            Button { label = t("Reset", "تصفير"); onClick = { resetSw() } }
+          }
+          Button { label = t("Back to clocks", "رجوع للساعات"); onClick = { view = "clocks" } }
+        }
+      }
+    }
+  }
+}
