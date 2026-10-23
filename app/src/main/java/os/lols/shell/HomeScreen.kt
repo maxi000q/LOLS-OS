@@ -182,7 +182,7 @@ private fun dockApps(apps: List<AppInfo>): List<AppInfo> {
     val preferred = listOf("os.lols.store", "com.lols.notes", "com.lols.files")
     val found = preferred.mapNotNull { id -> apps.firstOrNull { it.id == id } }
     if (found.size >= 3) return found
-    return apps.filter { it.id !in found }.take(3 - found.size).let { found + it }
+    return apps.filter { a -> found.none { it.id == a.id } }.take(3 - found.size).let { found + it }
 }
 
 @Composable
